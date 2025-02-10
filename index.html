@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Time Zone App</title>
+  <style>
+    /* General Styles */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f9f9f9;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+
+    h1 {
+      text-align: center;
+      color: #4a90e2;
+      margin-bottom: 20px;
+    }
+
+    /* Time Zone Block Styling */
+    .time-zone-block {
+      background-color: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin-bottom: 15px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      text-align: center; /* Center all text inside the block */
+    }
+
+    .time-zone-block:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .custom-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #4a90e2;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+
+    .custom-title:hover {
+      color: #357abd;
+    }
+
+    .time-info {
+      font-size: 16px;
+      color: #666;
+      display: flex;
+      flex-direction: column; /* Stack time info vertically */
+      align-items: center; /* Center align items horizontally */
+      gap: 5px; /* Add spacing between UTC offset and time */
+    }
+
+    .time-info span {
+      font-weight: 500;
+    }
+
+    /* Controls Section */
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 30px;
+    }
+
+    button {
+      padding: 12px 20px;
+      font-size: 16px;
+      font-weight: 500;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    button#add-timezone-btn {
+      background-color: #4a90e2;
+      color: white;
+    }
+
+    button#add-timezone-btn:hover {
+      background-color: #357abd;
+      transform: scale(1.05);
+    }
+
+    button#customize-colors-btn {
+      background-color: #ff6f61;
+      color: white;
+    }
+
+    button#customize-colors-btn:hover {
+      background-color: #e53935;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <h1>🌍 Time Zone App</h1>
+
+  <div id="time-zones-container"></div>
+
+  <div class="controls">
+    <button id="add-timezone-btn">🌎</button>
+    <button id="customize-colors-btn">🎨</button>
+  </div>
+
+<script>
+  const Store = require('electron-store');
+  const store = new Store();
+
+  // Load saved time zones from electron-store
+  let timeZones = store.get('timeZones') || [];
+
+  const timeZonesContainer = document.getElementById("time-zones-container");
+
+  function renderTimeZones() {
+    timeZonesContainer.innerHTML = ""; // Clear previous content
+
+    timeZones.forEach((tz) => {
+      const block = document.createElement("div");
+      block.className = "time-zone-block";
+
+      const title = document.createElement("div");
+      title.className = "custom-title";
+      title.textContent = tz.title || `UTC${tz.offset}`;
+      title.onclick = () => editTitle(tz);
+
+      const timeInfo = document.createElement("div");
+      timeInfo.className = "time-info";
+      timeInfo.innerHTML = `
+        <span>UTC${tz.offset}</span>
+        <span>${tz.time}</span>
+      `;
+
+      block.appendChild(title);
+      block.appendChild(timeInfo);
+      timeZonesContainer.appendChild(block);
+    });
+
+    // Save time zones to electron-store
+    store.set('timeZones', timeZones);
+  }
+
+  function editTitle(timeZone) {
+    const newTitle = prompt("Enter a custom title:", timeZone.title);
+    if (newTitle !== null) {
+      timeZone.title = newTitle || null; // Allow clearing the title
+      renderTimeZones(); // Re-render the time zones with the updated title
+    }
+  }
+
+  // Initial render
+  renderTimeZones();
+
+  // Open the "Add Time Zone" window
+  document.getElementById("add-timezone-btn").addEventListener("click", () => {
+    ipcRenderer.send('open-add-timezone-window');
+  });
+
+  // Listen for new time zones from the "Add Time Zone" window
+  ipcRenderer.on('add-timezone-to-main', (event, timeZone) => {
+    timeZones.push({ ...timeZone, time: "12:00 AM" }); // Default time for now
+    renderTimeZones();
+  });
+</script>
+</body>
+</html>

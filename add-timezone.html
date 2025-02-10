@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Time Zone</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #4a90e2;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    select, input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #357abd;
+    }
+  </style>
+</head>
+<body>
+  <h2>Add Time Zone</h2>
+
+  <div class="form-group">
+    <label for="timezone-select">Select Time Zone:</label>
+    <select id="timezone-select">
+      <option value="UTC-12">UTC-12: International Date Line West</option>
+      <option value="UTC-11">UTC-11: Samoa Time</option>
+      <option value="UTC-10">UTC-10: Hawaii-Aleutian Time</option>
+      <option value="UTC-9">UTC-9: Alaska Time</option>
+      <option value="UTC-8">UTC-8: Pacific Time</option>
+      <option value="UTC-7">UTC-7: Mountain Time</option>
+      <option value="UTC-6">UTC-6: Central Time</option>
+      <option value="UTC-5">UTC-5: Eastern Time</option>
+      <option value="UTC-4">UTC-4: Atlantic Time</option>
+      <option value="UTC-3">UTC-3: Brasilia Time</option>
+      <option value="UTC-2">UTC-2: South Georgia Time</option>
+      <option value="UTC-1">UTC-1: Azores Time</option>
+      <option value="UTC+0">UTC+0: Greenwich Mean Time</option>
+      <option value="UTC+1">UTC+1: Central European Time</option>
+      <option value="UTC+2">UTC+2: Eastern European Time</option>
+      <option value="UTC+3">UTC+3: Moscow Time</option>
+      <option value="UTC+4">UTC+4: Gulf Standard Time</option>
+      <option value="UTC+5">UTC+5: Pakistan Standard Time</option>
+      <option value="UTC+6">UTC+6: Bangladesh Standard Time</option>
+      <option value="UTC+7">UTC+7: Indochina Time</option>
+      <option value="UTC+8">UTC+8: China Standard Time</option>
+      <option value="UTC+9">UTC+9: Japan Standard Time</option>
+      <option value="UTC+10">UTC+10: Australian Eastern Time</option>
+      <option value="UTC+11">UTC+11: Solomon Islands Time</option>
+      <option value="UTC+12">UTC+12: New Zealand Time</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="custom-title">Custom Title (Optional):</label>
+    <input type="text" id="custom-title" placeholder="Enter a custom title">
+  </div>
+
+  <button id="add-btn">Add Time Zone</button>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+
+    document.getElementById('add-btn').addEventListener('click', () => {
+      const timeZoneOffset = document.getElementById('timezone-select').value;
+      const customTitle = document.getElementById('custom-title').value.trim() || null;
+
+      // Send the new time zone data back to the main process
+      ipcRenderer.send('add-timezone', { offset: timeZoneOffset, title: customTitle });
+
+      // Close the window after adding
+      window.close();
+    });
+  </script>
+</body>
+</html>
